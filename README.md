@@ -48,7 +48,7 @@ Python 新冠肺炎疫情数据，支持获取国内、全球、国内各个省�
 ### 如何安装
 
 ```bash
-python -m pip install pycovid-19-dxy
+pip install pycovid-19-dxy
 ```
 
 ### 获取上海市的疫情数据
