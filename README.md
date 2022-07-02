@@ -54,7 +54,7 @@ python -m pip install pycovid-19-dxy
 ### 获取上海市的疫情数据
 ```python
 import json
-from pycovid.pycovid import PyCovid
+from pycovid.covid import PyCovid
 covid = PyCovid()
 shanghai_covid = covid.province_covid(province='上海市', include_province_name=True)
 print(json.dumps(shanghai_covid, ensure_ascii=False, indent=4))
@@ -90,7 +90,7 @@ province参数支持简称，可以用简称替代省份全名，如果你想要
 ### 获取国内的疫情数数据
 
 ```python
-from pycovid.pycovid import PyCovid
+from pycovid.covid import PyCovid
 import json
 
 covid = PyCovid()
@@ -134,7 +134,7 @@ print(json.dumps(cn_covid, ensure_ascii=False, indent=4))
 ### 获取国内风险地区
 
 ```python
-from pycovid.pycovid import PyCovid
+from pycovid.covid import PyCovid
 import json
 
 covid = PyCovid()
@@ -203,7 +203,7 @@ print(json.dumps(danger_areas, ensure_ascii=False, indent=4))
 ### 获取全球疫情数据
 
 ```python
-from pycovid.pycovid import PyCovid
+from pycovid.covid import PyCovid
 import json
 
 covid = PyCovid()
