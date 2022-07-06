@@ -4,6 +4,18 @@ Python 新冠肺炎疫情数据，支持获取全球各个国家、国内、国�
 
 ## 使用方法
 
+### 安装
+
+```bash
+pip install pycovid-19-dxy
+```
+
+### 下载Jupyter Notebook
+
+如果您想查看程序运行效果，请下载我们的Jupyter Notebook，并在终端运行它。
+
+- 下载地址 [点此下载](https://cdn.jsdelivr.net/gh/senge-studio/pycovid-19-dxy@main/demo.ipynb)
+
 ### 国内疫情数据
 
 - 以上为示例

@@ -14,7 +14,12 @@ class PyCovid:
     """获取国内外的疫情数据"""
 
     def __init__(self):
-        """从网站获取原始html代码，并分别对国内外的数据进行处理，只保留json格式的数据"""
+        """从网站获取原始html代码，并分别对国内外的数据进行处理，只保留json格式的数据
+        如需调用原始数据，请自行添加参数获取
+        如果您想获取国内疫情信息的原始数据，请使用PyCovid().c_data
+        如果您想获取国外疫情信息的原始数据，请使用PyCovid().w_data
+        如果您想获取国内疫情相关的新闻信息，请使用PyCovid().n_data
+        """
         self.url = "https://ncov.dxy.cn/ncovh5/view/pneumonia"
         try:
             self.response = requests.get(self.url)
@@ -100,10 +105,45 @@ class PyCovid:
                 if province_data['provinceShortName'] in ['香港', '澳门', '台湾']:
                     raise CovidException(f'如果想获取港澳台的数据，请使用cn_covid()并设置province_name参数。')
                 for city in province_data['cities']:
+                    cityname = city['cityName']
                     if city['cityName'] in ignore_cities:
                         continue
+                    if city['cityName'] == '大兴安岭':
+                        cityname = '大兴安岭地区'
+                    city_names = [
+                        "锡林郭勒盟",
+                        "阿拉善盟",
+                        "兴安盟",
+                        "甘孜州",
+                        "凉山州",
+                        "阿坝州",
+                        "德宏州",
+                        "红河州",
+                        "大理州",
+                        "文山州",
+                        "楚雄州",
+                        "赣江新区",
+                        "恩施州",
+                        "神农架林区",
+                        "雄安新区",
+                        "喀什地区",
+                        "伊犁州",
+                        "兵团第四师",
+                        "昌吉州",
+                        "兵团第九师",
+                        "巴州（巴音郭楞蒙古自治州）", 
+                        "兵团第十二师",
+                        "兵团第七师",
+                        "阿克苏地区",
+                        "黔南州",
+                        "黔东南州",
+                        "黔西南州",
+                        "海北州",
+                    ]
+                    if cityname not in city_names:
+                        cityname = cityname + '市'
                     city_data = {
-                        'cityName': city['cityName']
+                        'cityName': cityname
                     }
                     if current:
                         city_data['currentConfirmed'] = city['currentConfirmedCount']
@@ -454,8 +494,44 @@ class PyCovid:
                             area_name.strip(province['provinceName'])
                         if province['provinceShortName'] in area_name:
                             area_name.strip(province['provinceShortName'])
-                        if area['cityName'] not in area_name:
-                            area_name = area['cityName'] + area_name
+                        cityname = area['cityName']
+                        if city['cityName'] == '大兴安岭':
+                            cityname = '大兴安岭地区'
+                        city_names = [
+                            "锡林郭勒盟",
+                            "阿拉善盟",
+                            "兴安盟",
+                            "甘孜州",
+                            "凉山州",
+                            "阿坝州",
+                            "德宏州",
+                            "红河州",
+                            "大理州",
+                            "文山州",
+                            "楚雄州",
+                            "赣江新区",
+                            "恩施州",
+                            "神农架林区",
+                            "雄安新区",
+                            "喀什地区",
+                            "伊犁州",
+                            "兵团第四师",
+                            "昌吉州",
+                            "兵团第九师",
+                            "巴州（巴音郭楞蒙古自治州）", 
+                            "兵团第十二师",
+                            "兵团第七师",
+                            "阿克苏地区",
+                            "黔南州",
+                            "黔东南州",
+                            "黔西南州",
+                            "海北州",
+                        ]
+                        if cityname not in city_names:
+                            cityname = cityname + '市'
+                        if area['cityName'] in area_name:
+                            area_name = area_name.strip(area['cityName'])
+                        area_name = cityname + area_name
                         p_data[danger_lv].append(area_name)
                         merged_data[danger_lv].append(province['provinceName'] + area_name)
                 data.append(p_data)
@@ -509,12 +585,11 @@ class PyCovid:
             print('数据来源：https://ncov.dxy.cn/ncovh5/view/pneumonia')
             print('您可以免费使用本程序，也可以免费对其进行优化和改进以及再发布，但是必须保留原作者的信息，详情请访问：https://jxself.org/translations/gpl-3.zh.shtml')
             print('无论出于任何目的，本程序都禁止用于商业用途，否则将受到法律责任。')
-            print('版本：1.2.0')
-            print('更新日期：2022-07-05')
+            print('版本：1.2.2')
+            print('更新日期：2022-07-06')
             print('更新日志：')
-            print('\t1.2.0：')
-            print('\t\t支持直接将输出的结果保存为json格式')
-            print('\t\t修改了文档中的错误提示')
+            print('\t1.2.1：')
+            print('\t\t优化了城市名称的显示')
         elif language == 'en_US':
             print('Copyright © 2020-2022 senge-studio')
             print('License: GNU General Public License v3')
@@ -527,12 +602,11 @@ class PyCovid:
                 'but you must keep the author information. For more information, please visit: '
                 'https://www.gnu.org/licenses/gpl-3.0.en.html')
             print('This program is forbidden for commercial use.')
-            print('Version: 1.2.0')
+            print('Version: 1.2.2')
             print('Update date: 2022-07-05')
             print('Update log:')
             print('\t1.2.0:')
-            print('\t\t1. You can directly save the output result to json format')
-            print('\t\t2. Fixed the error of the document.')
+            print('\t\tOptimized the display of city name')
 
 
 if __name__ == '__main__':
