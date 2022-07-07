@@ -311,10 +311,9 @@ class PyCovid:
             'but you must keep the author information. For more information, please visit: '
             'https://www.gnu.org/licenses/gpl-3.0.en.html')
         print('This program is forbidden for commercial use.')
-        print('Version: 2.0.0')
+        print('Version: 2.0.1')
         print('Update date: 2022-07-07')
         print('Update log:')
-        print('\t2.0.0:')
         print('\t\tEnglish language support.')
 
 if __name__ == '__main__':
