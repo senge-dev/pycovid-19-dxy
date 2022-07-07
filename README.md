@@ -2,6 +2,9 @@
 
 Python 新冠肺炎疫情数据，支持获取全球各个国家、国内、国内各个省份以及各个城市的疫情数据、国内的中高风险地区、国内近一周和疫情有关的部分新闻。
 
+- If you want to get the English documentation，please see[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/main/README-en_US.md)
+- 如果你想访问英文版的文档，请查看[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/main/README-en_US.md)
+
 ## 使用方法
 
 ### 安装
@@ -168,7 +171,7 @@ data = covid.world_covid(
     confirmed_incr=True,            # 默认获取新增确诊数据
     cured_incr=True,                # 默认获取新增治愈数据
     dead_incr=True,                 # 默认获取新增死亡数据
-    country_name=None,              # 默认获取全球数据，如果想获取某个国家的数据，可以传入国家名称，如获取日本的新冠肺炎数据，请传入`'日本'`或`'Japan'`
+    name=None,              # 默认获取全球数据，如果想获取某个国家的数据，可以传入国家名称，如获取日本的新冠肺炎数据，请传入`'日本'`或`'Japan'`
     return_to_json=False            # 是否返回json格式，默认不返回
 )
 """简单的参数设置可以这样写"""
@@ -180,7 +183,7 @@ data = covid.world_covid(
     cured=False,
     confirmed_incr=False,
     cured_incr=False,
-    country_name='日本'               # 也可以使用`'Japan'`作为参数
+    name='日本'               # 也可以使用`'Japan'`作为参数
 )
 ```
 

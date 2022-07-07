@@ -1,25 +1,32 @@
 #!/usr/bin/env python
 # encoding='utf-8'
-import json
-import requests
-from bs4 import BeautifulSoup
+import json                         # 数据预处理
+import requests                     # 网络请求
+from bs4 import BeautifulSoup       # HTML解析
+import locale                       # 获取系统语言
 
 
 class CovidException(Exception):
     def __init__(self, *args):
         self.args = args
 
-
 class PyCovid:
     """获取国内外的疫情数据"""
 
-    def __init__(self):
+    def __init__(self, ignore_region=False):
         """从网站获取原始html代码，并分别对国内外的数据进行处理，只保留json格式的数据
+        :param ignore_region: 是否忽略系统语言检测，默认不忽略，如果你的系统语言不是中文，而且你想获取国内的数据，可以设置为True以忽略异常
         如需调用原始数据，请自行添加参数获取
         如果您想获取国内疫情信息的原始数据，请使用PyCovid().c_data
         如果您想获取国外疫情信息的原始数据，请使用PyCovid().w_data
         如果您想获取国内疫情相关的新闻信息，请使用PyCovid().n_data
         """
+        self.ignore_region = ignore_region
+        # 如果系统语言不是中文，则抛出异常并提示用户使用其他方法进行调用(如果ignore_region为True，则不抛出异常)
+        if locale.getdefaultlocale()[0] != 'zh_CN' and not self.ignore_region:
+            raise CovidException("""Your system language is not Chinese, please run: "from pycovid.covid_en import PyCovid" instead.
+If you want to ignore system language, please run: "from pycovid.covid import PyCovid(ignore_region=True)
+""")
         self.url = "https://ncov.dxy.cn/ncovh5/view/pneumonia"
         try:
             self.response = requests.get(self.url)
@@ -169,7 +176,7 @@ class PyCovid:
         return data
 
     def world_covid(self, current=True, confirmed=True, cured=True, dead=True, confirmed_incr=True, cured_incr=True,
-                    dead_incr=True, country_name=None, return_to_json=False):
+                    dead_incr=True, name=None, return_to_json=False):
         """获取全球疫情数据
         :param current: 是否获取现存确诊人数，默认获取
         :param confirmed: 是否获取累计确诊人数，默认获取
@@ -178,234 +185,227 @@ class PyCovid:
         :param confirmed_incr: 是否获取新增确诊人数，默认获取
         :param cured_incr: 是否获取新增治愈人数，默认获取
         :param dead_incr: 是否获取新增死亡人数，默认获取
-        :param country_name: 是否获取指定国家的数据，默认获取全国数据，如果想获取日本的数据，参数为：'日本'或'Japan'
+        :param name: 是否获取指定国家的数据，默认获取全国数据，如果想获取日本的数据，参数为：'日本'或'Japan'
         :param return_to_json: 是否返回json格式的数据，默认返回字典格式数据
         :return: 字典，包含全球各个国家的疫情数据
         """
         if not current and not confirmed and not cured and not dead and not confirmed_incr and not cured_incr and not dead_incr:
             raise CovidException('参数current、confirmed、cured、dead、confirmed_incr、cured_incr、dead_incr中至少需要获取一个数据')
         countries_name = {
-            "Afghanistan": "阿富汗",
-            "Angola": "安哥拉",
-            "Albania": "阿尔巴尼亚",
-            "Algeria": "阿尔及利亚",
-            "Argentina": "阿根廷",
-            "Armenia": "亚美尼亚",
-            "Australia": "澳大利亚",
-            "Austria": "奥地利",
-            "Azerbaijan": "阿塞拜疆",
-            "Bahamas": "巴哈马",
-            "Bangladesh": "孟加拉国",
-            "Belgium": "比利时",
-            "Benin": "贝宁",
-            "Burkina Faso": "布基纳法索",
-            "Burundi": "布隆迪",
-            "Bulgaria": "保加利亚",
-            "Bosnia and Herz.": "波斯尼亚和黑塞哥维那",
-            "Belarus": "白俄罗斯",
-            "Belize": "伯利兹",
-            "Bermuda": "百慕大群岛",
-            "Bolivia": "玻利维亚",
-            "Brazil": "巴西",
-            "Brunei": "文莱",
-            "Bhutan": "不丹",
-            "Botswana": "博茨瓦纳",
-            "Cambodia": "柬埔寨",
-            "Cameroon": "喀麦隆",
-            "Canada": "加拿大",
-            "Central African Rep.": "中非共和国",
-            "Chad": "乍得",
-            "Chile": "智利",
-            "China": "中国",
-            "Colombia": "哥伦比亚",
-            "Congo": "刚果",
-            "Costa Rica": "哥斯达黎加",
-            "Côte d'Ivoire": "科特迪瓦",
-            "Croatia": "克罗地亚",
-            "Cuba": "古巴",
-            "Cyprus": "塞浦路斯",
-            "Czech Rep.": "捷克共和国",
-            "Dem. Rep. Korea": "韩国",
-            "Dem. Rep. Congo": "民主刚果",
-            "Denmark": "丹麦",
-            "Djibouti": "吉布提",
-            "Dominican Rep.": "多米尼加共和国",
-            "Ecuador": "厄瓜多尔",
-            "Egypt": "埃及",
-            "El Salvador": "萨尔瓦多",
-            "Eq. Guinea": "赤道几内亚",
-            "Eritrea": "厄立特里亚",
-            "Estonia": "爱沙尼亚",
-            "Ethiopia": "埃塞俄比亚",
-            "Falkland Is.": "福克兰群岛",
-            "Fiji": "斐济",
-            "Finland": "芬兰",
-            "France": "法国",
-            "French Guiana": "法属圭亚那",
-            "Fr. S. Antarctic Lands": "法属南部领地",
-            "Gabon": "加蓬",
-            "Gambia": "冈比亚",
-            "Germany": "德国",
-            "Georgia": "佐治亚州",
-            "Ghana": "加纳",
-            "Greece": "希腊",
-            "Greenland": "格陵兰",
-            "Guatemala": "危地马拉",
-            "Guinea": "几内亚",
-            "Guinea-Bissau": "几内亚比绍",
-            "Guyana": "圭亚那",
-            "Haiti": "海地",
-            "Heard I. and McDonald Is.": "赫德岛和麦克唐纳群岛",
-            "Honduras": "洪都拉斯",
-            "Hungary": "匈牙利",
-            "Iceland": "冰岛",
-            "India": "印度",
-            "Indonesia": "印度尼西亚",
-            "Iran": "伊朗",
-            "Iraq": "伊拉克",
-            "Ireland": "爱尔兰",
-            "Israel": "以色列",
-            "Italy": "意大利",
-            "Ivory Coast": "象牙海岸",
-            "Jamaica": "牙买加",
-            "Japan": "日本",
-            "Jordan": "乔丹",
-            "Kashmir": "克什米尔",
-            "Kazakhstan": "哈萨克斯坦",
-            "Kenya": "肯尼亚",
-            "Kosovo": "科索沃",
-            "Kuwait": "科威特",
-            "Kyrgyzstan": "吉尔吉斯斯坦",
-            "Laos": "老挝",
-            "Lao PDR": "老挝人民民主共和国",
-            "Latvia": "拉脱维亚",
-            "Lebanon": "黎巴嫩",
-            "Lesotho": "莱索托",
-            "Liberia": "利比里亚",
-            "Libya": "利比亚",
-            "Lithuania": "立陶宛",
-            "Luxembourg": "卢森堡",
-            "Madagascar": "马达加斯加",
-            "Macedonia": "马其顿",
-            "Malawi": "马拉维",
-            "Malaysia": "马来西亚",
-            "Mali": "马里",
-            "Mauritania": "毛里塔尼亚",
-            "Mexico": "墨西哥",
-            "Moldova": "摩尔多瓦",
-            "Mongolia": "蒙古",
-            "Montenegro": "黑山",
-            "Morocco": "摩洛哥",
-            "Mozambique": "莫桑比克",
-            "Myanmar": "缅甸",
-            "Namibia": "纳米比亚",
-            "Netherlands": "荷兰",
-            "New Caledonia": "新喀里多尼亚",
-            "New Zealand": "新西兰",
-            "Nepal": "尼泊尔",
-            "Nicaragua": "尼加拉瓜",
-            "Niger": "尼日尔",
-            "Nigeria": "尼日利亚",
-            "Korea": "朝鲜",
-            "Northern Cyprus": "北塞浦路斯",
-            "Norway": "挪威",
-            "Oman": "阿曼",
-            "Pakistan": "巴基斯坦",
-            "Panama": "巴拿马",
-            "Papua New Guinea": "巴布亚新几内亚",
-            "Paraguay": "巴拉圭",
-            "Peru": "秘鲁",
-            "Republic of the Congo": "刚果共和国",
-            "Philippines": "菲律宾",
-            "Poland": "波兰",
-            "Portugal": "葡萄牙",
-            "Puerto Rico": "波多黎各",
-            "Qatar": "卡塔尔",
-            "Republic of Seychelles": "塞舌尔共和国",
-            "Republic of Singapore": "新加坡共和国",
-            "Romania": "罗马尼亚",
-            "Russia": "俄罗斯",
-            "Rwanda": "卢旺达",
-            "Samoa": "萨摩亚",
-            "Saudi Arabia": "沙特阿拉伯",
-            "Senegal": "塞内加尔",
-            "Serbia": "塞尔维亚",
-            "Sierra Leone": "塞拉利昂",
-            "Slovakia": "斯洛伐克",
-            "Slovenia": "斯洛文尼亚",
-            "Solomon Is.": "所罗门群岛",
-            "Somaliland": "索马里兰",
-            "Somalia": "索马里",
-            "South Africa": "南非",
-            "S. Geo. and S. Sandw. Is.": "南乔治亚和南桑德威奇群岛",
-            "S. Sudan": "南苏丹",
-            "Spain": "西班牙",
-            "Sri Lanka": "斯里兰卡",
-            "Sudan": "苏丹",
-            "Suriname": "苏里南",
-            "Swaziland": "斯威士兰",
-            "Sweden": "瑞典",
-            "Switzerland": "瑞士",
-            "Syria": "叙利亚",
-            "Tajikistan": "塔吉克斯坦",
-            "Tanzania": "坦桑尼亚",
-            "Thailand": "泰国",
-            "The Kingdom of Tonga": "汤加王国",
-            "Timor-Leste": "东帝汶",
-            "Togo": "多哥",
-            "Trinidad and Tobago": "特立尼达和多巴哥",
-            "Tunisia": "突尼斯",
-            "Turkey": "土耳其",
-            "Turkmenistan": "土库曼斯坦",
-            "Uganda": "乌干达",
-            "Ukraine": "乌克兰",
-            "United Arab Emirates": "阿拉伯联合酋长国",
-            "United Republic of Tanzania": "坦桑尼亚联合共和国",
-            "United States": "美国",
-            "United Kingdom": "英国",
-            "United States of America": "美利坚合众国",
-            "Uruguay": "乌拉圭",
-            "Uzbekistan": "乌兹别克斯坦",
-            "Vanuatu": "瓦努阿图",
-            "Venezuela": "委内瑞拉",
-            "Vietnam": "越南",
-            "West Bank": "西岸",
-            "W. Sahara": "西撒哈拉",
-            "Yemen": "也门",
-            "Zambia": "赞比亚",
-            "Zimbabwe": "津巴布韦",
-            "Liechtenstein": "列支敦士登",
-            "Aland": "奥兰群岛",
-            "Andorra": "安道尔",
-            "American Samoa": "东萨摩亚",
-            "Antigua and Barb.": "安提瓜和巴布达",
-            "Bahrain": "巴林王国",
-            "Barbados": "巴巴多斯",
-            "Comoros": "科摩罗",
-            "Cape Verde": "佛得角",
-            "Curaçao": "库拉索",
-            "Cayman Is.": "开曼群岛",
-            "N. Cyprus": "塞浦路斯",
-            "Dominica": "多米尼克",
-            "Faeroe Is.": "法罗群岛",
-            "Micronesia": "密克罗尼西亚联邦",
-            "Grenada": "格林纳达",
-            "Guam": "关岛",
-            "Isle of Man": "马恩岛",
-            "Br. Indian Ocean Ter.": "英属印度洋领地",
-            "Jersey": "泽西岛",
-            "Siachen Glacier": "锡亚琴冰川",
-            "Kiribati": "基里巴斯",
-            "Saint Lucia": "圣卢西亚",
-            "Malta": "马耳他岛",
-            "N. Mariana Is.": "马里亚纳群岛",
-            "Montserrat": "蒙特塞拉特",
-            "Mauritius": "毛里求斯",
-            "Niue": "纽埃",
-            "Palau": "帕劳",
-            "Palestine": "巴勒斯坦",
-            "Fr. Polynesia": "法属波利尼西亚",
-            "Singapore": "新加坡"
+            "法国": "France",
+            "德国": "Germany",
+            "韩国": "Korea",
+            "英国": "United Kingdom",
+            "西班牙": "Spain",
+            "意大利": "Italy",
+            "巴西": "Brazil",
+            "土耳其": "Turkey",
+            "荷兰": "Netherlands",
+            "俄罗斯": "Russia",
+            "日本": "Japan",
+            "比利时": "Belgium",
+            "中国": "China",
+            "奥地利": "Austria",
+            "瑞士": "Switzerland",
+            "希腊": "Greece",
+            "伊朗": "Iran",
+            "丹麦": "Denmark",
+            "墨西哥": "Mexico",
+            "瑞典": "Sweden",
+            "斯洛伐克": "Slovakia",
+            "智利": "Chile",
+            "塞尔维亚": "Serbia",
+            "伊拉克": "Iraq",
+            "美国": "United States",
+            "爱尔兰": "Ireland",
+            "乌克兰": "Ukraine",
+            "哈萨克斯坦": "Kazakhstan",
+            "秘鲁": "Peru",
+            "格鲁吉亚": "Georgia",
+            "斯洛文尼亚": "Slovenia",
+            "罗马尼亚": "Romanian",
+            "约旦": "Jordan",
+            "黎巴嫩": "Lebanon",
+            "葡萄牙": "Portugal",
+            "波多黎各": "Puerto Rico",
+            "危地马拉": "Guatemala",
+            "立陶宛": "Lithuania",
+            "蒙古": "Mongolia",
+            "阿塞拜疆": "Azerbaijan",
+            "澳大利亚": "Australia",
+            "克罗地亚": "Croatia",
+            "多米尼加": "dominica",
+            "玻利维亚": "Bolivia",
+            "巴拿马": "Panama",
+            "孟加拉国": "Bangladesh",
+            "捷克": "Czech Republic",
+            "塞浦路斯": "Cyprus",
+            "留尼旺": "Reunion",
+            "印度": "India",
+            "加拿大": "Canada",
+            "保加利亚": "Bulgaria",
+            "摩洛哥": "Morocco",
+            "拉脱维亚": "Latvia",
+            "巴勒斯坦": "Palestine",
+            "乌拉圭": "Uruguay",
+            "巴基斯坦": "Pakistan",
+            "沙特阿拉伯": "Saudi Arabia",
+            "以色列": "Israel",
+            "利比亚": "Libya",
+            "毛里求斯": "Mauritius",
+            "亚美尼亚": "Armenia",
+            "阿联酋": "U.A.E",
+            "马提尼克": "Martinique",
+            "巴拉圭": "Paraguay",
+            "埃及": "Egypt",
+            "爱沙尼亚": "Estonia",
+            "新西兰": "New Zealand",
+            "瓜德罗普岛": "Guadeloupe",
+            "委内瑞拉": "Venezuela",
+            "马来西亚": "Malaysia",
+            "博茨瓦纳": "Botswana",
+            "摩尔多瓦": "Moldova",
+            "卡塔尔": "Qatar",
+            "阿根廷": "Argentina",
+            "巴林": "Bahrain",
+            "埃塞俄比亚": "Ethiopia",
+            "阿尔及利亚": "Algeria",
+            "文莱": "Brunei",
+            "特立尼达和多巴哥": "Trinidad and Tobago",
+            "阿曼": "Oman",
+            "缅甸": "Myanmar",
+            "法属圭亚那": "French Guiana",
+            "牙买加": "Jamaica",
+            "黑山": "Montenegro",
+            "哥斯达黎加": "Costa Rica",
+            "古巴": "Cuba",
+            "白俄罗斯": "Belarus",
+            "莫桑比克": "Mozambique",
+            "阿尔巴尼亚": "Albania",
+            "巴巴多斯": "Barbados",
+            "芬兰": "Finland",
+            "肯尼亚": "Kenya",
+            "斯威士兰": "Eswatini",
+            "斯里兰卡": "Sri Lanka",
+            "贝宁": "Benin",
+            "刚果（金）": "Democratic Republic of the Congo",
+            "不丹": "Bhutan",
+            "阿富汗": "Afghanistan",
+            "苏里南": "Suriname",
+            "新喀里多尼亚": "New Caledonia",
+            "哥伦比亚": "Colombia",
+            "伯利兹": "Belize",
+            "尼日利亚": "Nigeria",
+            "圭亚那": "Guyana",
+            "泽西岛": "Jersey",
+            "乌兹别克斯坦": "Uzbekistan",
+            "布隆迪共和国": "Burundi",
+            "加纳": "Ghana",
+            "纳米比亚": "Namibia",
+            "厄瓜多尔": "Ecuador",
+            "库拉索岛": "Curacao",
+            "卢旺达": "Rwanda",
+            "马约特": "Mayotte",
+            "喀麦隆": "Cameroon",
+            "安哥拉": "Angola",
+            "坦桑尼亚": "Tanzania",
+            "萨尔瓦多": "El Salvador",
+            "关岛": "Guam",
+            "马尔代夫": "Maldives",
+            "阿鲁巴": "Aruba",
+            "叙利亚": "Syria",
+            "开曼群岛": "Cayman Islands",
+            "根西岛": "Guernsey",
+            "巴哈马": "Bahamas",
+            "莱索托": "Lesotho",
+            "科特迪瓦": "Côte d’Ivoire",
+            "苏丹": "Sudan",
+            "马拉维": "Malawi",
+            "越南": "Vietnam",
+            "毛里塔尼亚": "Mauritania",
+            "吉尔吉斯斯坦": "Kyrgyzstan",
+            "佛得角": "Cape Verde",
+            "塞舌尔": "Seychelles",
+            "马恩岛": "Isle of Man",
+            "马达加斯加": "Madagascar",
+            "泰国": "Thailand",
+            "海地": "Haiti",
+            "加蓬": "Gabon",
+            "挪威": "Norway",
+            "卢森堡": "Luxembourg",
+            "索马里": "Somalia",
+            "马里": "Mali",
+            "刚果（布）": "Congo (Brazzaville)",
+            "新加坡": "Singapore",
+            "印度尼西亚": "Indonesia",
+            "多米尼克": "Dominica",
+            "赞比亚共和国": "Zambia",
+            "百慕大": "Bermuda",
+            "美属维尔京群岛": "United States Virgin Islands",
+            "多哥": "Togo",
+            "斐济": "Fiji",
+            "尼加拉瓜": "Nicaragua",
+            "塞内加尔": "Senegal",
+            "格林那达": "Grenada",
+            "北马里亚纳群岛联邦": "Commonwealth of the Northern Mariana Islands",
+            "突尼斯": "Tunisia",
+            "摩纳哥": "Monaco",
+            "匈牙利": "Hungary",
+            "圣马丁岛": "Saint Martin",
+            "也门共和国": "Yemen",
+            "格陵兰": "Greenland",
+            "圣文森特和格林纳丁斯": "Saint Vincent and the Grenadines",
+            "冰岛": "Iceland",
+            "波兰": "Poland",
+            "中非共和国": "Central African Republic",
+            "几内亚": "Guinea",
+            "马耳他": "Malta",
+            "安提瓜和巴布达": "Antigua and Barbuda",
+            "布基纳法索": "Burkina Faso",
+            "荷属圣马丁": "St. Maarten, The Netherlands",
+            "南苏丹": "South Sudan",
+            "科威特": "Kuwait",
+            "圣其茨和尼维斯": "Saint-Žić and Nevis",
+            "安道尔": "Andorra",
+            "列支敦士登": "Liechtenstein",
+            "科摩罗": "Comoros",
+            "圣巴泰勒米岛": "Saint Barthelemy Island",
+            "赤道几内亚": "Equatorial Guinea",
+            "东帝汶": "Timor-Leste",
+            "圣马力诺": "San Marino",
+            "英属维尔京群岛": "British Virgin Islands",
+            "巴布亚新几内亚": "Papua New Guinea",
+            "乌干达": "Uganda",
+            "特克斯和凯科斯群岛": "Turks and Caicos Islands",
+            "圣卢西亚": "Saint Lucia",
+            "安圭拉": "Anguilla",
+            "吉布提": "Djibouti",
+            "圣多美和普林西比": "Sao Tome and Principe",
+            "法罗群岛": "Faroe Islands",
+            "塞拉利昂": "Sierra Leone",
+            "洪都拉斯": "Honduras",
+            "厄立特里亚": "Eritrea",
+            "直布罗陀": "Gibraltar",
+            "几内亚比绍": "Guinea-Bissau",
+            "尼日尔": "Niger",
+            "津巴布韦": "Zimbabwe",
+            "圣皮埃尔和密克隆群岛": "Saint Pierre and Miquelon",
+            "波黑": "Bosnia",
+            "乍得": "Chad",
+            "冈比亚": "Gambia",
+            "福克兰群岛": "Falkland Islands",
+            "利比里亚": "Liberia",
+            "北马其顿": "North Macedonia",
+            "蒙特塞拉特": "Montserrat",
+            "尼泊尔": "Nepal",
+            "老挝": "Laos",
+            "法属波利尼西亚": "French Polynesia",
+            "塔吉克斯坦": "Tajikistan",
+            "荷兰加勒比地区": "Netherlands Caribbean",
+            "柬埔寨": "Cambodia",
+            "梵蒂冈": "Vatican City",
+            "菲律宾": "Philippines",
+            "南非": "South Africa"
         }
         data = []
         for country in self.w_data:  # 获取每个国家的现存确诊、累计确诊、累计治愈、累计死亡、新增确诊、新增死亡、新增治愈人数
@@ -413,7 +413,7 @@ class PyCovid:
             country_name_zh_cn = country['provinceName']  # 国家名称中文
             if country_name_zh_cn in ['钻石公主号邮轮']:
                 continue
-            for en_us, zh_cn in countries_name.items():
+            for zh_cn, en_us in countries_name.items():
                 if zh_cn == country_name_zh_cn:
                     country_name_en_us = en_us
                     break
@@ -435,7 +435,7 @@ class PyCovid:
                 world_data['curedIncr'] = country['incrVo']['curedIncr']
             if dead_incr:
                 world_data['deadIncr'] = country['incrVo']['deadIncr']
-            if country_name in [country_name_zh_cn, country_name_en_us]:
+            if name in [country_name_zh_cn, country_name_en_us]:
                 data = world_data
                 break
             data.append(world_data)
@@ -572,42 +572,21 @@ class PyCovid:
             return json.dumps(data, indent=4, ensure_ascii=False)
         return data
 
-    def print_license(self, language='zh_CN'):
-        """打印授权信息
-        :param language: 版权信息的语言，支持简体中文和英文
-        """
-        if language == 'zh_CN':
-            print('版权所有：@2020-2022 森哥Studio')
-            print('许可证：GNU GPLv3')
-            print('作者：森哥Studio')
-            print('邮箱：senge-studio@protonmail.com')
-            print('Github：https://github.com/senge-studio')
-            print('数据来源：https://ncov.dxy.cn/ncovh5/view/pneumonia')
-            print('您可以免费使用本程序，也可以免费对其进行优化和改进以及再发布，但是必须保留原作者的信息，详情请访问：https://jxself.org/translations/gpl-3.zh.shtml')
-            print('无论出于任何目的，本程序都禁止用于商业用途，否则将受到法律责任。')
-            print('版本：1.2.2')
-            print('更新日期：2022-07-06')
-            print('更新日志：')
-            print('\t1.2.1：')
-            print('\t\t优化了城市名称的显示')
-        elif language == 'en_US':
-            print('Copyright © 2020-2022 senge-studio')
-            print('License: GNU General Public License v3')
-            print('Author: senge-studio')
-            print('Email: senge-studio@protonmail.com')
-            print('Github: https://github.com/senge-studio')
-            print('Data: https://ncov.dxy.cn/ncovh5/view/pneumonia')
-            print(
-                'You can freely use this program, but you can also freely improve it and release it again, '
-                'but you must keep the author information. For more information, please visit: '
-                'https://www.gnu.org/licenses/gpl-3.0.en.html')
-            print('This program is forbidden for commercial use.')
-            print('Version: 1.2.2')
-            print('Update date: 2022-07-05')
-            print('Update log:')
-            print('\t1.2.0:')
-            print('\t\tOptimized the display of city name')
-
+    def print_license(self):
+        """打印授权信息"""
+        print('版权所有：@2020-2022 森哥Studio')
+        print('许可证：GNU GPLv3')
+        print('作者：森哥Studio')
+        print('邮箱：senge-studio@protonmail.com')
+        print('Github：https://github.com/senge-studio')
+        print('数据来源：https://ncov.dxy.cn/ncovh5/view/pneumonia')
+        print('您可以免费使用本程序，也可以免费对其进行优化和改进以及再发布，但是必须保留原作者的信息，详情请访问：https://jxself.org/translations/gpl-3.zh.shtml')
+        print('无论出于任何目的，本程序都禁止用于商业用途，否则将受到法律责任。')
+        print('版本：2.0.0')
+        print('更新日期：2022-07-07')
+        print('更新日志：')
+        print('\t2.0.0：')
+        print('\t\t为英文版本提供了支持。')
 
 if __name__ == '__main__':
     # 在导入pycovid.py时检查网络连接
