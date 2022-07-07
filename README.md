@@ -2,7 +2,7 @@
 
 Python 新冠肺炎疫情数据，支持获取全球各个国家、国内、国内各个省份以及各个城市的疫情数据、国内的中高风险地区、国内近一周和疫情有关的部分新闻。
 
-- If you want to get the English documentation，please see[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/main/README-en_US.md)
+- If you want to get the English documentation，please see[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/blob/main/README-en_US.md)
 - 如果你想访问英文版的文档，请查看[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/main/README-en_US.md)
 
 ## 使用方法
