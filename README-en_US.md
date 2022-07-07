@@ -74,7 +74,7 @@ data = covid.world_covid(
     },
     "......",
     {
-        "countryName": ""Vatican City",
+        "countryName": "Vatican City",
         "currentConfirmed": 2,
         "confirmed": 29,
         "cured": 27,
