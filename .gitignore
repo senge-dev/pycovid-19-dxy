@@ -5,3 +5,6 @@ dist
 build
 pycovid_19_dxy.egg-info
 test.py
+build.bat
+build.py
+build.sh
