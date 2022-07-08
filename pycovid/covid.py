@@ -495,7 +495,7 @@ If you want to ignore system language, please run: "from pycovid.covid import Py
                         if province['provinceShortName'] in area_name:
                             area_name.strip(province['provinceShortName'])
                         cityname = area['cityName']
-                        if city['cityName'] == '大兴安岭':
+                        if area['cityName'] == '大兴安岭':
                             cityname = '大兴安岭地区'
                         city_names = [
                             "锡林郭勒盟",
@@ -582,8 +582,8 @@ If you want to ignore system language, please run: "from pycovid.covid import Py
         print('数据来源：https://ncov.dxy.cn/ncovh5/view/pneumonia')
         print('您可以免费使用本程序，也可以免费对其进行优化和改进以及再发布，但是必须保留原作者的信息，详情请访问：https://jxself.org/translations/gpl-3.zh.shtml')
         print('无论出于任何目的，本程序都禁止用于商业用途，否则将受到法律责任。')
-        print('版本：2.0.3')
-        print('更新日期：2022-07-07')
+        print('版本：2.0.5')
+        print('更新日期：2022-07-08')
         print('更新日志：')
         print('\t\t修复了部分Bug。')
 
