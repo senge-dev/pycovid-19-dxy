@@ -11,12 +11,15 @@ class CovidException(Exception):
 class PyCovid:
     """Get the latest covid-19 data from the website"""
 
-    def __init__(self):
+    def __init__(self, use_it_anyway=False):
         """Get the html data from the website, and parse the data, only save the json data which we need
         if you want to get the raw data, you can get it by using some parameters in the function
         if you want to get the covid-19 data from China, you can use the function PyCovid().c_data
         if you want to get the covid-19 data from the world, you can use the function PyCovid().w_data
+        :param use_it_anyway: if you want to use this program anyway, you can set this parameter to True
         """
+        if not use_it_anyway:
+            raise CovidException('This pypi is EOL, please use pyeumonia instead, if you still want to use it, you can set the parameter use_it_anyway to True.')
         self.url = "https://ncov.dxy.cn/ncovh5/view/pneumonia"
         try:
             self.response = requests.get(self.url)
@@ -311,10 +314,10 @@ class PyCovid:
             'but you must keep the author information. For more information, please visit: '
             'https://www.gnu.org/licenses/gpl-3.0.en.html')
         print('This program is forbidden for commercial use.')
-        print('Version: 2.0.5')
-        print('Update date: 2022-07-08')
+        print('Version: 2022.08.01-EOL')
+        print('Update date: 2022-07-10')
         print('Update log:')
-        print('\t\tBug fixed.')
+        print('\t\tThis pypi is EOL, please use pyeumonia instead.')
 
 if __name__ == '__main__':
     # Whill importing this package, the internet connection would be checked.

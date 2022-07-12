@@ -2,6 +2,10 @@
 
 Python 新冠肺炎疫情数据，支持获取全球各个国家、国内、国内各个省份以及各个城市的疫情数据、国内的中高风险地区、国内近一周和疫情有关的部分新闻。
 
+pycovid-19-dxy即将停止维护，所有功能将会迁移到新项目pyeumonia，请在2022年8月1日前将项目迁移到pyeumonia，不过已经使用了pycovid的项目在短期内可以正常运行，本程序的任何功能都会迁移到pyeumonia，请使用pyeumonia代替，在pyeumonia的稳定版发布以后，pycovid-19-dxy的所有版本将会被删除。即日起，此程序的任何BUG都不会修复，请谅解。
+
+pycovid-19-dxy is EOL, please use pyeumonia instead before 2022-08-01, all features will be moved to pyeumonia, and all versions will be deleted after pyeumonia is stable, from now on , any bugs in this program will not be fixed, please understand.
+
 - If you want to get the English documentation，please see[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/blob/main/README-en_US.md)
 
 - 如果你想访问英文版的文档，请查看[README-en_US.md](https://github.com/senge-studio/pycovid-19-dxy/blob/main/README-en_US.md)

@@ -2,6 +2,10 @@
 
 Python covid-19 data, you can get the data from the world or your country.
 
+This project is EOL, please use pyeumonia instead, it is more powerful.
+
+for more information, please visit https://pypi.org/project/pyeumonia/
+
 ## How to use
 
 ### Installation

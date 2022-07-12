@@ -13,14 +13,17 @@ class CovidException(Exception):
 class PyCovid:
     """获取国内外的疫情数据"""
 
-    def __init__(self, ignore_region=False):
+    def __init__(self, ignore_region=False, use_it_anyway=False):
         """从网站获取原始html代码，并分别对国内外的数据进行处理，只保留json格式的数据
         :param ignore_region: 是否忽略系统语言检测，默认不忽略，如果你的系统语言不是中文，而且你想获取国内的数据，可以设置为True以忽略异常
+        :param use_it_anyway: 本程序已停止支持，如果想继续使用，可以设置为True
         如需调用原始数据，请自行添加参数获取
         如果您想获取国内疫情信息的原始数据，请使用PyCovid().c_data
         如果您想获取国外疫情信息的原始数据，请使用PyCovid().w_data
         如果您想获取国内疫情相关的新闻信息，请使用PyCovid().n_data
         """
+        if not use_it_anyway:
+            raise CovidException('此程序已经停止维护，请使用pyeumonia来获取数据，如果你想继续使用本程序，请将参数use_it_anyway设置为True')
         self.ignore_region = ignore_region
         # 如果系统语言不是中文，则抛出异常并提示用户使用其他方法进行调用(如果ignore_region为True，则不抛出异常)
         if locale.getdefaultlocale()[0] != 'zh_CN' and not self.ignore_region:
@@ -582,10 +585,10 @@ If you want to ignore system language, please run: "from pycovid.covid import Py
         print('数据来源：https://ncov.dxy.cn/ncovh5/view/pneumonia')
         print('您可以免费使用本程序，也可以免费对其进行优化和改进以及再发布，但是必须保留原作者的信息，详情请访问：https://jxself.org/translations/gpl-3.zh.shtml')
         print('无论出于任何目的，本程序都禁止用于商业用途，否则将受到法律责任。')
-        print('版本：2.0.5')
-        print('更新日期：2022-07-08')
+        print('版本：2022.08.01-EOL')
+        print('更新日期：2022-07-10')
         print('更新日志：')
-        print('\t\t修复了部分Bug。')
+        print('\t\t停止更新，请尽快迁移到pyeumonia。')
 
 if __name__ == '__main__':
     # 在导入pycovid.py时检查网络连接
